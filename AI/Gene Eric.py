@@ -63,7 +63,7 @@ class AIPlayer(Player):
     #   inputPlayerId - The id to give the new player (int)
     ##
     def __init__(self, inputPlayerId):
-        super(AIPlayer, self).__init__(inputPlayerId, "geneticsAI")
+        super(AIPlayer, self).__init__(inputPlayerId, "Gene Eric")
         #the coordinates of the agent's food and tunnel will be stored in these
         #variables (see getMove() below)
         self.myFood = None
@@ -172,9 +172,8 @@ class AIPlayer(Player):
         while (selectedMove.moveType == BUILD and numAnts >= 3):
             selectedMove = moves[random.randint(0, len(moves) - 1)];
         
-        if selectedMove.moveType == "END":
+        if selectedMove.moveType ==  END:
             self.turnCount+=1
-            print("TURN COUNT UP")
         return selectedMove
     
     ##
@@ -211,9 +210,13 @@ class AIPlayer(Player):
     #
     def registerWin(self, hasWon):
         if hasWon:
-            self.gene_fit_list[self.currGene] = 100-self.turnCount
+            self.gene_fit_list[self.currGene] = 500-self.turnCount
         else:
             self.gene_fit_list[self.currGene] = self.turnCount
-        if self.currGene<20:
+        print(self.gene_fit_list[self.currGene])
+        if self.currGene<19:
+            self.turnCount=0
             self.currGene+=1
             print(self.currGene)
+        else:
+            self.currGene=0
