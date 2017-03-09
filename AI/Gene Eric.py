@@ -173,7 +173,7 @@ class AIPlayer(Player):
             selectedMove = moves[random.randint(0, len(moves) - 1)];
         
         if selectedMove.moveType == "END":
-            turnCount+=1
+            self.turnCount+=1
             print("TURN COUNT UP")
         return selectedMove
     

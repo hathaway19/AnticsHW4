@@ -10,7 +10,8 @@ from Move import Move
 from GameState import addCoords
 from AIPlayerUtils import *
 
-
+TOTAL_GENERATIONS_TO_DO = 20
+SIZE_OF_POPULATION = 20
 ##
 #AIPlayer
 #Description: The responsbility of this class is to interact with the game by
@@ -21,8 +22,7 @@ from AIPlayerUtils import *
 #   playerId - The id of the player.
 ##
 class AIPlayer(Player):
-
-    #list of nodes for search tree
+    # list of genes for current generation
     gene_list = []
 
     #__init__
@@ -32,6 +32,7 @@ class AIPlayer(Player):
     #   inputPlayerId - The id to give the new player (int)
     ##
     def __init__(self, inputPlayerId):
+
         super(AIPlayer, self).__init__(inputPlayerId, "geneticsAI")
 
     # Method to create a gene
@@ -39,12 +40,12 @@ class AIPlayer(Player):
         gene = [value, eval]
         self.gene_list.append(gene)
 
+    # Method to find the best gene in a list of genes
     def find_best_gene(self, gene_list):
         best_gene = gene_list[0]
         for gene in gene_list:
             if gene.eval > best_gene.eval:
                 best_gene = gene
-
         return best_gene
     ##
     #getPlacement
@@ -89,6 +90,7 @@ class AIPlayer(Player):
                 moves.append(move)
             return moves
         elif currentState.phase == SETUP_PHASE_2:  # stuff on foe's side
+            self.first_move = True
             numToPlace = 2
             moves = []
             for i in range(0, numToPlace):
@@ -160,7 +162,7 @@ class AIPlayer(Player):
     ##
     def getAttack(self, currentState, attackingAnt, enemyLocations):
         # Attack a random enemy.
-        return enemyLocations[0]
+        return enemyLocations[random.randint(0, len(enemyLocations) - 1)]
         
     ##
     #registerWin
@@ -172,5 +174,12 @@ class AIPlayer(Player):
     #   hasWon - True if the player has won the game, False if the player lost. (Boolean)
     #
     def registerWin(self, hasWon):
-        #method templaste, not implemented
         pass
+
+    def check_if_best_state(self, currentState):
+        best_state = currentState
+
+    #Method to send the results to an output file
+    def output_to_file(self, currentState, best_gene):
+
+        asciiPrintState(currentState)
