@@ -23,7 +23,7 @@ from AIPlayerUtils import *
 class AIPlayer(Player):
 
     #list of nodes for search tree
-    node_list = []
+    gene_list = []
 
     #__init__
     #Description: Creates a new Player
@@ -34,12 +34,18 @@ class AIPlayer(Player):
     def __init__(self, inputPlayerId):
         super(AIPlayer, self).__init__(inputPlayerId, "geneticsAI")
 
-    # Method to create a node containing the state, evaluation, move, current depth,
-    # the parent node, and the index
-    def create_node(self, state, evaluation, move, current_depth, parent_index, index):
-        node = [state, evaluation, move, current_depth, parent_index, index]
-        self.node_list.append(node)
-    
+    # Method to create a gene
+    def create_gene(self, value, eval):
+        gene = [value, eval]
+        self.gene_list.append(gene)
+
+    def find_best_gene(self, gene_list):
+        best_gene = gene_list[0]
+        for gene in gene_list:
+            if gene.eval > best_gene.eval:
+                best_gene = gene
+
+        return best_gene
     ##
     #getPlacement
     #
