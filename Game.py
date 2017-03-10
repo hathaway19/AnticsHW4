@@ -491,7 +491,7 @@ class Game(object):
                 self.playerScores[self.loser][2] += 1
 
                 # if CommandLine Mode print the values to the console
-                self.printTournament()
+                #self.printTournament()
 
                 #reset the game
                 self.initGame()
