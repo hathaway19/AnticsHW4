@@ -30,6 +30,7 @@ class AIPlayer(Player):
     turnCount = 0
     this_gene_fit = [0, 0, 0]
     this_gene_runs = 0
+    state_to_print = 0
 
     
     def initialize(self):
@@ -283,6 +284,20 @@ class AIPlayer(Player):
                 self.turnCount=0
                 self.currGene+=1
             else:
+                self.print_to_file(self.state_to_print)
                 self.currGene=0
                 self.newGen()
                 print("A NEW GENERATION EATS ITS PARENTS")
+
+    def print_to_file(self, state_to_print):
+        stdout = sys.stdout
+        sys.stdout = open("gene2.txt", "a")
+
+        sys.stdout.close()
+        sys.stdout = stdout
+        output_file = open("gene.txt", "a")
+
+        output_file.write("blah tet")
+        asciiPrintState(state_to_print)
+
+        output_file.close()
