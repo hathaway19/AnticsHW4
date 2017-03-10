@@ -28,6 +28,8 @@ class AIPlayer(Player):
     gene_fit_list = []
     currGene = 0
     turnCount = 0
+    this_gene_fit = [0, 0, 0]
+    this_gene_runs = 0
 
     
     def initialize(self):
@@ -200,6 +202,30 @@ class AIPlayer(Player):
         # Attack a random enemy.
         return enemyLocations[0]
         
+    def mate(self, parent1, parent2):
+        newList = []
+        cut = int(math.floor((random.random()*11)+1))
+        child1 = self.gene_list[parent1][1:cut]
+        child1.append(self.gene_list[parent2][cut:13])
+        child2 = self.gene_list[parent2][1:cut]
+        child2.append(self.gene_list[parent1][cut:13])
+        for i in child1:
+            for e in child1:
+                if i==e and i!=e:
+                    if e<11:
+                        child1[e]=(random.randint(0, 9), random.randint(0, 3))
+                    else:
+                        child1[e]=(random.randint(0, 9), random.randint(6, 9))
+        for i in child2:
+            for e in child2:
+                if i==e and i!=e:
+                    if e<11:
+                        child2[e]=(random.randint(0, 9), random.randint(0, 3))
+                    else:
+                        child2[e]=(random.randint(0, 9), random.randint(6, 9))
+        newList.append(child1)
+        newList.append(child2)
+        return newList
         
     def newGen(self):
         sortedList = []
@@ -228,14 +254,9 @@ class AIPlayer(Player):
                     looper = False
                 else:
                     parent2+=1
-            cut = int(math.floor((random.random()*11)+1))
-            child1 = self.gene_list[parent1][1:cut]
-            child1.append(self.gene_list[parent2][cut:13])
-            child2 = self.gene_list[parent2][1:cut]
-            child2.append(self.gene_list[parent1][cut:13])
-            newList.append(child1)
-            newList.append(child2)
+            newList = self.mate(parent1, parent2)
         gene_list=newList
+        
     ##
     #
     #Description: The last method, registerWin, is called when the game ends and simply 
@@ -247,14 +268,21 @@ class AIPlayer(Player):
     #
     def registerWin(self, hasWon):
         if hasWon:
-            self.gene_fit_list[self.currGene] = 1000-self.turnCount
+            self.this_gene_fit[self.this_gene_runs] = 1500-self.turnCount
         else:
-            self.gene_fit_list[self.currGene] = self.turnCount
-        print(self.gene_fit_list[self.currGene])
-        if self.currGene<19:
-            self.turnCount=0
-            self.currGene+=1
+            self.this_gene_fit[self.this_gene_runs] = self.turnCount
+        print(self.this_gene_fit[self.this_gene_runs])
+        if self.this_gene_runs<2:
+            self.this_gene_runs += 1
         else:
-            self.currGene=0
-            self.newGen()
-            print("A NEW GENERATION EATS ITS PARENTS")
+            self.this_gene_runs = 0
+            totalFit = self.this_gene_fit[0]+self.this_gene_fit[1]+self.this_gene_fit[2]
+            self.gene_fit_list[self.currGene] = int(totalFit/4)
+            print(self.gene_fit_list[self.currGene])
+            if self.currGene<19:
+                self.turnCount=0
+                self.currGene+=1
+            else:
+                self.currGene=0
+                self.newGen()
+                print("A NEW GENERATION EATS ITS PARENTS")
