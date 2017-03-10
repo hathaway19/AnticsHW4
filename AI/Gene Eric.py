@@ -23,19 +23,28 @@ from AIPlayerUtils import *
 ##
 class AIPlayer(Player):
 
-    #list of nodes for search tree
+    #The current generation of genes
     gene_list = []
+    #The fitness of the current generation
     gene_fit_list = []
+    #The current gene being tested
     currGene = 0
+    #The number of turns into the game we're in
     turnCount = 0
+    #Since we're running each gene 3 times, hold 3 fitness values for the current gene
     this_gene_fit = [0, 0, 0]
+    #how many times this gene's been run
     this_gene_runs = 0
 
-    
+    #__init__
+    #Description: Initializes a list of genes
+    ##
     def initialize(self):
         for i in range(0,20):
+            #Bucket of gene values
             geneValues = []
             for i in range(0, 11):
+                #Stole the rando AI's initial gen ;)
                 move = None
                 while move == None:
                     # Choose any x location
@@ -57,7 +66,9 @@ class AIPlayer(Player):
                     if (x, y) not in geneValues:
                         move = (x, y)
                 geneValues.append(move)
+            #stick it to the end of the gene values
             self.gene_list.append(geneValues)
+            #start it off with a fitness of 0
             self.gene_fit_list.append(0)
     #__init__
     #Description: Creates a new Player
@@ -72,16 +83,11 @@ class AIPlayer(Player):
         self.myFood = None
         self.myTunnel = None
         turnCount = 0
+        #If it's empty, initialize the stuff
+        #I now realize it only runs once, but I left it there just in case
         if not self.gene_list:
             self.initialize()     
-
-    def find_best_gene(self, gene_list):
-        best_gene = gene_list[0]
-        for gene in gene_list:
-            if gene.eval > best_gene.eval:
-                best_gene = gene
-
-        return best_gene
+            
     ##
     #getPlacement
     #
@@ -112,6 +118,7 @@ class AIPlayer(Player):
             numToPlace = 11
             moves = []
             for i in range(0, numToPlace):
+                #just put the grass and stuff on the field already
                 moves.append(geneValues[i])
             return moves
         elif currentState.phase == SETUP_PHASE_2:  # stuff on foe's side
@@ -120,15 +127,14 @@ class AIPlayer(Player):
             for i in range(0, numToPlace):
                 move = None
                 while move == None:
-                    # Choose any x location
                     x = geneValues[i][0]
-                    # Choose any y location on enemy side of the board
                     y = geneValues[i][1]
                     # Set the move if this space is empty
                     if currentState.board[x][y].constr == None and (x, y) not in moves:
                         move = (x, y)
                         # Just need to make the space non-empty. So I threw whatever I felt like in there.
                         currentState.board[x][y].constr == True
+                    #if it's colliding with something on the other side, just choose somewhere random
                     else:
                         move = None
                         while move == None:
@@ -201,14 +207,27 @@ class AIPlayer(Player):
     def getAttack(self, currentState, attackingAnt, enemyLocations):
         # Attack a random enemy.
         return enemyLocations[0]
-        
+    #mate
+    #Description: Take two parent genes and slice them together to make two babies
+    # in a terrifying, gorey ritual of rebirth
+    # SO MANY BABIES
+    #
+    #Parameters:
+    #   parent1 - a gene to cut up for stuff
+    #   parent2 - another gene to cut up for stuff
+    ##
     def mate(self, parent1, parent2):
+        #list to hold the BABIES
         newList = []
+        #pick a spot to slice the parents
         cut = int(math.floor((random.random()*11)+1))
-        child1 = self.gene_list[parent1][1:cut]
-        child1.append(self.gene_list[parent2][cut:13])
-        child2 = self.gene_list[parent2][1:cut]
-        child2.append(self.gene_list[parent1][cut:13])
+        #Cut the parents and stick their halves together to make children
+        child1 = parent1[1:cut]
+        child1.append(parent2[cut:13])
+        child2 = parent2[1:cut]
+        child2.append(parent1[cut:13])
+        
+        #If a child has more than one of the same tuple as a position, MUTATE IT
         for i in child1:
             for e in child1:
                 if i==e and i!=e:
@@ -223,15 +242,25 @@ class AIPlayer(Player):
                         child2[e]=(random.randint(0, 9), random.randint(0, 3))
                     else:
                         child2[e]=(random.randint(0, 9), random.randint(6, 9))
+        #Stick 'em to the new list
         newList.append(child1)
         newList.append(child2)
         return newList
         
+    #newGen
+    #Description: Choose a bunch of parents and make BABIES
+    # MAKE ME BABIES, RANDOM FLOATING GENETIC MATERIAL
+    ##
     def newGen(self):
+        #A list of indices indicating the order of fitness
         sortedList = []
+        #The best fitness value
         maxVal = 0
+        #The former's index
         maxInd = 0
+        #a new list so that babies won't make babies
         newList = []
+        #Actually sort the parents
         for i in range(0,20):
             for e in range(0,20):
                 if self.gene_fit_list[e] > maxVal:
@@ -239,10 +268,13 @@ class AIPlayer(Player):
                     maxVal = self.gene_fit_list[e]
             sortedList.append(maxInd)
             self.gene_fit_list[maxInd] = 0
+        #Select the parents
         for i in range(0,10):
             parent1 = 0
             parent2 = 0
             looper = True
+            #starting at the top of the sorted list, every parent has a 1/4 to be chosen
+            #if the parent before them isn't
             while looper:
                 if random.random()<.25 or parent1==19:
                     looper = False
@@ -254,7 +286,10 @@ class AIPlayer(Player):
                     looper = False
                 else:
                     parent2+=1
-            newList = self.mate(parent1, parent2)
+            #Translate that to a parent off the sortedList
+        parent1 = self.gene_list[sortedList[parent1]]
+        parent2 = self.gene_list[sortedList[parent2]]
+        newList.append(self.mate(parent1, parent2))
         gene_list=newList
         
     ##
@@ -267,11 +302,14 @@ class AIPlayer(Player):
     #   hasWon - True if the player has won the game, False if the player lost. (Boolean)
     #
     def registerWin(self, hasWon):
+        #If it's won, it's score is 1500-the number of turns it took to win
+        #otherwise, it's just the number of turns it survived
         if hasWon:
             self.this_gene_fit[self.this_gene_runs] = 1500-self.turnCount
         else:
             self.this_gene_fit[self.this_gene_runs] = self.turnCount
         print(self.this_gene_fit[self.this_gene_runs])
+        #After 3 games, average the current gene's 3 scores and then roll over to the next one
         if self.this_gene_runs<2:
             self.this_gene_runs += 1
         else:
@@ -279,6 +317,8 @@ class AIPlayer(Player):
             totalFit = self.this_gene_fit[0]+self.this_gene_fit[1]+self.this_gene_fit[2]
             self.gene_fit_list[self.currGene] = int(totalFit/4)
             print(self.gene_fit_list[self.currGene])
+            #After the full generation is tested, make a new one and print out the best one of
+            #this generation
             if self.currGene<19:
                 self.turnCount=0
                 self.currGene+=1
