@@ -35,8 +35,11 @@ class AIPlayer(Player):
     this_gene_fit = [0, 0, 0]
     #how many times this gene's been run
     this_gene_runs = 0
+    #state for best gene
     state_to_print = 0
+    #current gene's state
     state = 0
+    #best fitness for this generation
     bestVal = 0
 
     #__init__
@@ -314,7 +317,6 @@ class AIPlayer(Player):
             self.this_gene_fit[self.this_gene_runs] = 1500-self.turnCount
         else:
             self.this_gene_fit[self.this_gene_runs] = self.turnCount
-        print(self.this_gene_fit[self.this_gene_runs])
         #After 3 games, average the current gene's 3 scores and then roll over to the next one
         if self.this_gene_runs<2:
             self.this_gene_runs += 1
@@ -322,10 +324,13 @@ class AIPlayer(Player):
             self.this_gene_runs = 0
             totalFit = self.this_gene_fit[0]+self.this_gene_fit[1]+self.this_gene_fit[2]
             self.gene_fit_list[self.currGene] = int(totalFit/4)
-            print(self.gene_fit_list[self.currGene])
             #After the full generation is tested, make a new one and print out the best one of
             #this generation
             if self.currGene<19:
+                #Also, record this one if it's the best one of this generation
+                if self.gene_fit_list[self.currGene]>self.bestVal:
+                    self.bestVal=self.gene_fit_list[self.currGene]
+                    self.state_to_print = self.state
                 self.turnCount=0
                 self.currGene+=1
             else:
@@ -333,4 +338,3 @@ class AIPlayer(Player):
                 self.currGene=0
                 self.newGen()
                 self.bestVal = 0
-                print("A NEW GENERATION EATS ITS PARENTS")
