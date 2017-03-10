@@ -13,13 +13,16 @@ from AIPlayerUtils import *
 
 
 ##
-#AIPlayer
-#Description: The responsbility of this class is to interact with the game by
-#deciding a valid move based on a given game state. This class has methods that
-#will be implemented by students in Dr. Nuxoll's AI course.
+# AIPlayer
+# Description: This AI player uses a Genetic algorithm decide the best placements for
+# its constructs (Anthill, Tunnel, and food). It gradually learns the best placement
+# by playing multiple games where it evals different states based on how well it played
+# against its opponent.
+# Assignment: Homework #4: Genetic Algorithms
 #
-#Variables:
-#   playerId - The id of the player.
+# Due Date: February 27th, 2017
+#
+# @names: Sean Tollisen, Justin Hathaway
 ##
 class AIPlayer(Player):
 
