@@ -35,6 +35,9 @@ class AIPlayer(Player):
     this_gene_fit = [0, 0, 0]
     #how many times this gene's been run
     this_gene_runs = 0
+    state_to_print = 0
+    state = 0
+    bestVal = 0
 
     #__init__
     #Description: Initializes a list of genes
@@ -173,6 +176,9 @@ class AIPlayer(Player):
     #Return: Move(moveType [int], coordList [list of 2-tuples of ints], buildType [int]
     ##
     def getMove(self, currentState):
+        if self.turnCount == 0:
+            self.state = currentState
+        #self.state_to_print = currentState
         moves = listAllLegalMoves(currentState)
         selectedMove = moves[random.randint(0, len(moves) - 1)];
 
@@ -323,6 +329,8 @@ class AIPlayer(Player):
                 self.turnCount=0
                 self.currGene+=1
             else:
+                asciiPrintState(self.state_to_print)
                 self.currGene=0
                 self.newGen()
+                self.bestVal = 0
                 print("A NEW GENERATION EATS ITS PARENTS")
