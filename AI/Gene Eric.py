@@ -31,6 +31,8 @@ class AIPlayer(Player):
     this_gene_fit = [0, 0, 0]
     this_gene_runs = 0
     state_to_print = 0
+    state = 0
+    bestVal = 0
 
     
     def initialize(self):
@@ -60,6 +62,7 @@ class AIPlayer(Player):
                 geneValues.append(move)
             self.gene_list.append(geneValues)
             self.gene_fit_list.append(0)
+
     #__init__
     #Description: Creates a new Player
     #
@@ -76,13 +79,6 @@ class AIPlayer(Player):
         if not self.gene_list:
             self.initialize()     
 
-    def find_best_gene(self, gene_list):
-        best_gene = gene_list[0]
-        for gene in gene_list:
-            if gene.eval > best_gene.eval:
-                best_gene = gene
-
-        return best_gene
     ##
     #getPlacement
     #
@@ -168,6 +164,9 @@ class AIPlayer(Player):
     #Return: Move(moveType [int], coordList [list of 2-tuples of ints], buildType [int]
     ##
     def getMove(self, currentState):
+        if self.turnCount == 0:
+            self.state = currentState
+        self.state_to_print = currentState
         moves = listAllLegalMoves(currentState)
         selectedMove = moves[random.randint(0, len(moves) - 1)];
 
@@ -202,7 +201,7 @@ class AIPlayer(Player):
     def getAttack(self, currentState, attackingAnt, enemyLocations):
         # Attack a random enemy.
         return enemyLocations[0]
-        
+
     def mate(self, parent1, parent2):
         newList = []
         cut = int(math.floor((random.random()*11)+1))
@@ -281,23 +280,14 @@ class AIPlayer(Player):
             self.gene_fit_list[self.currGene] = int(totalFit/4)
             print(self.gene_fit_list[self.currGene])
             if self.currGene<19:
+                if self.gene_fit_list[self.currGene] > self.bestVal:
+                    self.bestVal = self.gene_fit_list[self.currGene]
+                    self.state_to_print = self.state
                 self.turnCount=0
                 self.currGene+=1
             else:
-                self.print_to_file(self.state_to_print)
+                asciiPrintState(self.state_to_print)
                 self.currGene=0
                 self.newGen()
+                self.bestVal = 0
                 print("A NEW GENERATION EATS ITS PARENTS")
-
-    def print_to_file(self, state_to_print):
-        stdout = sys.stdout
-        sys.stdout = open("gene2.txt", "a")
-
-        sys.stdout.close()
-        sys.stdout = stdout
-        output_file = open("gene.txt", "a")
-
-        output_file.write("blah tet")
-        asciiPrintState(state_to_print)
-
-        output_file.close()
