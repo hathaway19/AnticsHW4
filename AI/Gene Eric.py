@@ -1,6 +1,7 @@
   # -*- coding: latin-1 -*-
 import random
 import sys
+import math
 sys.path.append("..")  #so other modules can be found in parent dir
 from Player import *
 from Constants import *
@@ -199,6 +200,42 @@ class AIPlayer(Player):
         # Attack a random enemy.
         return enemyLocations[0]
         
+        
+    def newGen(self):
+        sortedList = []
+        maxVal = 0
+        maxInd = 0
+        newList = []
+        for i in range(0,20):
+            for e in range(0,20):
+                if self.gene_fit_list[e] > maxVal:
+                    maxInd = e
+                    maxVal = self.gene_fit_list[e]
+            sortedList.append(maxInd)
+            self.gene_fit_list[maxInd] = 0
+        for i in range(0,10):
+            parent1 = 0
+            parent2 = 0
+            looper = True
+            while looper:
+                if random.random()<.25 or parent1==19:
+                    looper = False
+                else:
+                    parent1+=1
+            looper = True
+            while looper:
+                if (random.random()<.25 or parent2==18 or parent2==19)and parent2 is not parent1:
+                    looper = False
+                else:
+                    parent2+=1
+            cut = int(math.floor((random.random()*11)+1))
+            child1 = self.gene_list[parent1][1:cut]
+            child1.append(self.gene_list[parent2][cut:13])
+            child2 = self.gene_list[parent2][1:cut]
+            child2.append(self.gene_list[parent1][cut:13])
+            newList.append(child1)
+            newList.append(child2)
+        gene_list=newList
     ##
     #
     #Description: The last method, registerWin, is called when the game ends and simply 
@@ -210,13 +247,14 @@ class AIPlayer(Player):
     #
     def registerWin(self, hasWon):
         if hasWon:
-            self.gene_fit_list[self.currGene] = 500-self.turnCount
+            self.gene_fit_list[self.currGene] = 1000-self.turnCount
         else:
             self.gene_fit_list[self.currGene] = self.turnCount
         print(self.gene_fit_list[self.currGene])
         if self.currGene<19:
             self.turnCount=0
             self.currGene+=1
-            print(self.currGene)
         else:
             self.currGene=0
+            self.newGen()
+            print("A NEW GENERATION EATS ITS PARENTS")
